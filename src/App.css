@@ -1,0 +1,573 @@
+:root{
+    --container-color: #ffffff;
+    --accent-color: #6366f1;
+    --page-color: rgb(235, 235, 235);
+    --text-color:  rgb(19, 0, 0);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body{
+    background-color: var(--page-color);
+    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+nav{
+    background-color: var(--container-color);
+    padding: 0.5rem;
+    width:100vw;
+    padding-right: clamp(1rem,10vw,5rem);
+}
+
+nav ul{
+    display: flex;
+    flex: 1 1 0;
+    justify-content: space-around;
+}
+
+li{
+  list-style: none;
+}
+
+nav li{
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    margin-left: clamp(1rem,4vw,4rem);;
+}
+
+#supportLink{
+    margin-right: auto;
+}
+
+/* ----------home-section-<main>------------------ */
+
+.home-section{
+  display: grid;
+  max-width: fit-content;
+  grid-template-areas: 
+  "box1 box2"
+  "box3 box3";
+  margin: auto;
+}
+
+/* -------------quote block----------------------- */
+
+.quote-block {
+  max-width: 720px;
+  margin: 24px auto;
+  padding: 20px 28px;
+  background-color: var(--container-color);
+  border-left: 4px solid var(--accent-color); /* Gives the effect */
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  text-align: center;
+}
+
+.quote-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-color);
+  margin-bottom: 8px;
+}
+
+.quote-text {
+  margin: 0;
+  font-size: 1.1rem;
+  font-style: italic;
+  font-weight: 500;
+  color: #1e293b;
+  line-height: 1.5;
+}
+
+/* ---------Mood Logger Block------------- */
+
+.mood-logger-card {
+  max-width: 450px;
+  margin: 30px; 
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
+  padding: 28px;
+  background-color: var(--container-color);
+  grid-area: box1;
+}
+
+.mood-logger-card h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #0f172a;
+  font-size: 1.35rem;
+}
+
+.mood-form{
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/*---------------------------------------- Tag Section -----------------------------------------*/
+
+.tag-input-container{
+  display: flex;
+  align-items: end;
+  gap: 0.5rem;
+  margin-top: 4px;
+
+  & input{
+    max-width: 20ch;
+  }
+}
+
+/* ---------dropdown------------ */
+
+.dropdown-container {
+  position: relative;
+  width: 300px;
+  font-family: system-ui;
+}
+
+/* The floating dropdown list */
+.dropdown-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  z-index: 50;
+
+  margin: 4px 0 0 0;
+  padding: 6px 0;
+  list-style: none;
+
+  background-color: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+
+  max-height: 240px;
+  overflow-y: auto;
+
+  /* Standard modern syntax (Firefox / Chrome 121+) */
+  scrollbar-width: thin;
+  scrollbar-color: #334155 transparent;
+}
+
+
+/* 1. Track size & padding space */
+.dropdown-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* 2. Track background (transparent to blend with container) */
+.dropdown-list::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 4px 0; /* Keeps track slightly inset from top/bottom borders */
+}
+
+/* 3. The draggable thumb (rounded corners) */
+.dropdown-list::-webkit-scrollbar-thumb {
+  background-color: #334155;
+  border-radius: 20px; /* Fully rounds the sharp vertices */
+  border: 2px solid #0f172a; /* Creates an inner margin effect */
+}
+
+/* 4. Hover state for the thumb */
+.dropdown-list::-webkit-scrollbar-thumb:hover {
+  background-color: #475569;
+}
+
+/* Individual list items */
+.dropdown-item {
+  margin: 0;
+  padding: 0;
+}
+
+/* Interactive buttons inside each item */
+.dropdown-item button {
+  width: 100%;
+  padding: 10px 14px;
+  background: transparent;
+  color: #f8fafc;
+  border: none;
+  text-align: left;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.dropdown-item button:hover,
+.dropdown-item button:focus-visible {
+  background-color: #1e293b;
+  color: #38bdf8;
+  outline: none;
+}
+
+/* ------------ dropdown ends--------------- */
+
+.selected-tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px;
+  
+  max-height: 72px; 
+  overflow-y: auto;
+  
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background-color: #f8fafc;
+  
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+/* Custom Scrollbar for Tags Container */
+.selected-tags-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.selected-tags-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.selected-tags-container::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 10px;
+}
+
+.selected-tags-container::-webkit-scrollbar-thumb:hover {
+  background-color: #94a3b8;
+}
+
+/* 3. Individual Tag Pills */
+.tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  
+  font-size: 13px;
+  font-weight: 500;
+  color: #1e293b;
+  background-color: #e2e8f0;
+  
+  border: 1px solid #cbd5e1;
+  border-radius: 16px; /* Fully rounded pill shape */
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  
+  /* Prevents line breaks inside a single tag name */
+  white-space: nowrap; 
+}
+
+.tag-pill:hover {
+  background-color: #fecdd3; 
+  color: #e11d48;
+  border-color: #fda4af;
+}
+
+/* Close icon 'x' styling */
+.tag-remove-icon {
+  font-size: 14px;
+  line-height: 1;
+  font-weight: 600;
+  opacity: 0.6;
+}
+
+.tag-pill:hover .tag-remove-icon {
+  opacity: 1;
+}
+
+
+/* ------------------ Tag Section Ends -------------------------------- */
+
+/* --------------- Text Input --------------- */
+
+.inputWithCharCount{
+    display: flex;
+    align-items: end;
+    gap: 0.5rem;
+    margin-top: 4px;
+
+}
+
+.input-text-box {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: clamp(0.65rem,2vw,0.95rem);
+  transition: border-color 0.2s;
+}
+
+.input-text-box:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  border-width: 2px;
+}
+
+/* ---------buttons----------- */
+.button-group {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+.btn {
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.2s;
+}
+
+.btn-primary {
+  background-color: var(--accent-color);
+  color: white;
+  transition: background-color 0.5s ease-in-out;
+}
+
+.btn-primary:hover {
+  background-color: #2a2676;
+}
+
+.btn-secondary {
+  background-color: #f1f5f9;
+  color: #303740;
+}
+
+.btn-secondary:hover {
+  background-color: #d1d6dc;
+}
+
+/* --------------mood-history-container------------------------ */
+
+.mood-history-container {
+  max-width: 850px;
+  margin: 30px;
+  padding: 24px;
+  background-color: var(--container-color);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  grid-area: box3;
+}
+
+.mood-history-title {
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 1.25rem;
+  color: #0f172a;
+}
+
+.mood-history-empty {
+  text-align: center;
+  padding: 30px;
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+.mood-date-group {
+  margin-bottom: 24px;
+}
+
+.mood-date-header {
+  margin: 0 0 10px 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--accent-color);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.mood-entries-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.mood-entry-card {
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+  background-color: #f8fafc;
+  border: 1px solid #bacee8;
+  border-radius: 8px;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.mood-entry-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.mood-entry-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.95rem;
+}
+
+.mood-time {
+  color: #64748b;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+
+
+.mood-state {
+  color: #1e293b;
+  font-weight: 500;
+}
+
+.mood-entry-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-action {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.edit-btn, .cancel-btn {
+  background-color: #f1f5f9;
+  color: #334155;
+  border: 1px solid #79839b;
+}
+
+.edit-btn:hover, .cancel-btn:hover {
+  background-color: #e2e8f0;
+}
+
+.delete-btn, .confirm-btn {
+  background-color: #fef2f2;
+  color: #ef4444;
+  border: 1px solid #9b7979;
+}
+
+.delete-btn:hover, .confirm-btn:hover {
+  background-color: #fee2e2;
+}
+
+/* -----Confirm-Delete-Modal------ */
+.Del-Confirm-Modal{
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  border-radius: 1rem;
+  box-shadow: 0px 0px 200px 50px #344367;
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background-color: #d0e9f7;
+  
+  padding: 20px 24px;
+}
+
+.del-confirm-btn-grp{
+  display: flex;
+  justify-content: space-evenly;
+}
+
+/* --------latest-mood-container------------------ */
+
+.latest-mood-container {
+  grid-area: box2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap:10px;
+  
+  background-color: var(--container-color);
+  padding: 24px 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  border: 2px solid #c8defa;
+  
+  width: 100%;
+  max-width: 280px;
+  margin: 30px auto; 
+
+}
+
+/* Header */
+.latest-title {
+  margin: 0 0 14px 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.latest-mood-tag-container{
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.latest-mood-tag{
+  margin-left: 2px;
+  border: 1px solid var(--accent-color);
+  border-left: 3px solid var(--accent-color);
+  border-radius: 5px;
+  padding: 1px 4px;
+}
+
+/* Main Mood Text (State) */
+.latest-state {
+  margin: 0 0 10px 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+/* Timestamp */
+.latest-time {
+  font-size: 0.8rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* Empty State Styling */
+.latest-mood-container.empty {
+  border: 2px dashed #cbd5e1;
+  background-color: rgba(255, 255, 255, 0.6);
+}
+
+.empty-msg {
+  margin: 4px 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.sub-text {
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
