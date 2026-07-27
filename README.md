@@ -9,9 +9,9 @@ A React application for logging your daily mood with tags and notes. This projec
 ## Screenshots
 
 ![Home](screenshots/home.png)
-![](screenshots\homeDropdown.png)
-![](screenshots\homeDelete.png)
-![](screenshots\homEdit.png)
+![homeDropdown](screenshots\homeDropdown.png)
+![homeDelete](screenshots\homeDelete.png)
+![homEdit](screenshots\homEdit.png)
 
 
 ## Features
