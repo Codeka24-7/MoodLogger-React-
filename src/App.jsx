@@ -84,11 +84,12 @@ function Dropdown({tag,setTag}){
 // setShowDropdown is to show/hide the dropdown
 // addTag is the button action associated with this input field.
 
-function DropdownInput({tag,setTag,changeTheField,setShowDropdown,setSelectedTags}){
+function DropdownInput({tag,setTag,changeTheField,setShowDropdown,selectedTags,setSelectedTags}){
   
   function addTag(){
     if(tag.length===0) return; 
     if(!(moodTags.find((item)=>(item===tag)))) moodTags.push(tag);
+    if(selectedTags.includes(tag)) return;
     setSelectedTags((prev)=>{
       return [...prev,tag];
     })
@@ -112,14 +113,13 @@ function DropdownInput({tag,setTag,changeTheField,setShowDropdown,setSelectedTag
 // FullDropdown is the parent that manages the dropdown state 
 // Since this state is controlled/used by two components , i will treat these two as child component for the parent.
 // the shared states are: tag,  showDropdown
-function FullDropdown({setSelectedTags}){
+function FullDropdown({tag,setTag,selectedTags,setSelectedTags}){
   
   const [showDropdown,setShowDropdown] = useState(false);
-  const [tag, setTag] = useState("");
   
   return(
     <>
-      <DropdownInput {...{tag,setTag,changeTheField,setShowDropdown,setSelectedTags}}/>
+      <DropdownInput {...{tag,setTag,changeTheField,setShowDropdown,selectedTags,setSelectedTags}}/>
       {showDropdown && <Dropdown {...{tag,setTag}}/>}   
     </>
   )
@@ -127,10 +127,11 @@ function FullDropdown({setSelectedTags}){
 
 // I feel most of the state ownership is with this MoodForm. 
 // Ideally it doesnt have to accept a lot of parameters.
-function MoodForm({append,preTyped,preSelectedTags}){
+function MoodForm({makeChange,preTyped="",preSelectedTags=[],firstLabel,secondLabel,children}){
 
-  const [typed, setTyped] = useState( preTyped ? preTyped : "");
-  const [selectedTags,setSelectedTags] = useState( preSelectedTags ? preSelectedTags : []);
+  const [typed, setTyped] = useState(preTyped);
+  const [selectedTags,setSelectedTags] = useState(preSelectedTags);
+  const [tag, setTag] = useState("");
 
   function submit(e){
     e.preventDefault();
@@ -141,18 +142,22 @@ function MoodForm({append,preTyped,preSelectedTags}){
     const date = now.toLocaleDateString();
     const time = now.toLocaleTimeString();
     const id = now.getTime();
-    append({date,id,time,selectedTags,typed});
+    makeChange({date,id,time,selectedTags,typed});
     setTyped("");
+    setTag("");
     setSelectedTags([]);
   }
 
+  // console.log(selectedTags,selectedTags.length);
   return (
-    <form className="mood-form" autoComplete="off"
-      onSubmit={(e)=>{submit(e)}}>
+    <div className="mood-form-wrapper">
+      {children && <div className="mood-form-close-area">{children}</div>}
+      <form className="mood-form" autoComplete="off"
+        onSubmit={(e)=>{submit(e)}}>
       {/* Tag Section */}
       <div className="tag-selector">
-        <label forhtml='tag-input'>Select the tags that describe your mood: </label>
-        <FullDropdown setSelectedTags={setSelectedTags} />
+        <label forhtml='tag-input'>{firstLabel}</label>
+        <FullDropdown selectedTags={selectedTags} setSelectedTags={setSelectedTags} tag={tag} setTag={setTag} />
         {selectedTags.length > 0 ? (
           <>
             <p>Tags Selected</p>
@@ -165,7 +170,7 @@ function MoodForm({append,preTyped,preSelectedTags}){
 
       {/* Text Input Section */}
       <div className="form-group">
-        <label htmlFor="strmood">What's contributing to your mood right now?</label>
+        <label htmlFor="strmood">{secondLabel}</label>
         <div className='inputWithCharCount'>
           <input id="strmood" className='input-text-box' type="text" placeholder="Morning Run,Didn't Sleep well..."
             value={typed} onChange={(e) =>changeTheField(e,setTyped)} />
@@ -175,7 +180,7 @@ function MoodForm({append,preTyped,preSelectedTags}){
 
       {/* Action Buttons */}
       <div className="button-group">
-        <button type="button" className="btn btn-secondary" onClick={resetText}>
+        <button type="button" className="btn btn-secondary" onClick={()=>{resetText(setTyped)}}>
           Clear
         </button>
         <button type="submit" className="btn btn-primary">
@@ -183,6 +188,7 @@ function MoodForm({append,preTyped,preSelectedTags}){
         </button>
       </div>
     </form>
+    </div>
   )
 }
 
@@ -201,10 +207,12 @@ function resetText(setTyped){
 // after refactor a giant function became this much small !
 const MoodLogger = React.memo(
   function MoodLogger({append}){
+    const firstLabel = `Select the tags that describe your mood: `;
+    const secondLabel = `What's contributing to your mood right now?`;
     return(
       <div className="mood-logger-card">
         <h2>Mood Logger</h2>
-        <MoodForm append={append}/>
+        <MoodForm makeChange={append} firstLabel={firstLabel} secondLabel={secondLabel}/>
       </div>
     );
   }
@@ -288,7 +296,7 @@ function ConfirmDelete({showDelModal,setShowDelModal,deleteAfterConfirmed}){
 
   if(showDelModal.showNow){
     return (
-      <div className='Del-Confirm-Modal'>
+      <div className='modal'>
         <p>Do you want to delete the entry?</p>
         <p>This action cannot be undone!</p>
         <div className='del-confirm-btn-grp'>
@@ -298,6 +306,21 @@ function ConfirmDelete({showDelModal,setShowDelModal,deleteAfterConfirmed}){
       </div>
     );
   }
+}
+
+function EditEntryModal({showEditModal,editEntryWithChanges,setShowEditModal,moodHis}){
+  const {idx,date} = showEditModal;
+  const {id,time,moodState,tags:[...tagArray]} = moodHis[date][idx];
+  const firstLabel = `Select the tags that described your mood: `;
+  const secondLabel = `What wass contributing to your mood? `
+  return(
+    <div className="edit-modal modal">
+      <h2>Edit the entry</h2>
+      <MoodForm className="edit-moodform" makeChange={editEntryWithChanges} preTyped={moodState} preSelectedTags={tagArray}>
+        <button type="button" id="close-edit-modal" className="btn-action cancel-btn" onClick={()=>{setShowEditModal({showNow:false,date:"",idx:""})}}>Cancel</button>
+      </MoodForm>
+    </div>
+  );
 }
 
 function ListManager(){
@@ -352,21 +375,7 @@ function ListManager(){
     setMoodHis(final);
     setShowEditModal({showNow:false,date:"",idx:""});
   }
-
-  function EditEntryModal(){
-    const {idx,date} = showEditModal;
-    const {time,moodState,...tags} = moodHis[date][idx];
-    console.log("are both the tags the same? ",tags===moodHis[date][idx].tags);
-
-    return(
-      <div className="edit-modal">
-        <h2>Edit the entry</h2>
-        <MoodForm append={editEntryWithChanges}/>
-      </div>
-    );
-  }
-
-  // console.log("re rendering the listmanager and the children");
+// ---------------- return
   return (
     <main className='home-section'>
       <MoodLogger append={append} />
@@ -375,43 +384,9 @@ function ListManager(){
       </div>
       <LatestMood moodHis={moodHis}/>
       <ConfirmDelete {...{showDelModal,setShowDelModal,deleteAfterConfirmed}}/>
-      {/* {showEditModal.showNow && <EditEntryModal/>} */}
+      {showEditModal.showNow && <EditEntryModal {...{showEditModal,editEntryWithChanges,setShowEditModal,moodHis}}/>}
     </main>
   )
-
-}
-
-
-function simulateFetch(){
-
-    const datbase = {"cat":"Cat meows","dog":"Dog barks"};
-    const timetaken = {"cat":7000,"dog":1000};
-
-    const [query, setQuery] = useState("");
-    const [result, setResult] = useState("");
-
-    let ignore = false;
-
-    function FetchDetails(){
-
-        setTimeout(()=>{
-          if(!ignore) setResult(datbase[query]);
-        },timetaken[query]);
-      
-    }
-
-    useEffect(()=>{
-      FetchDetails();
-      return(()=>{ignore=true;})
-    },[query]);
-
-    return(
-      <div className="searchbox" style={{margin:"10px"}}>
-        <label htmlFor='search'>SearchBox </label>
-        <input type="text" id="search" value={query} onChange={(e)=>setQuery(e.target.value)} /> 
-        <p>{`Result : ${result}`}</p>
-      </div>
-    )
 
 }
 
