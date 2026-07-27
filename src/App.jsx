@@ -12,7 +12,10 @@ function QuoteBlock(){
   );
 }
 
+const moodTags = ["happy","sad","boring","curious","energetic","lazy","tired","fresh"];
+const characterLimit = 21;
 
+// helper resusable components
 function DisplayTags({tags,max_width}){
   console.log("inside display tags",tags)
   return(<div className="latest-mood-tag-container" style={{maxWidth:max_width}}>
@@ -22,139 +25,141 @@ function DisplayTags({tags,max_width}){
     </div>
   );
 }
+
+// helper resusable components
+function DisplaySelectedTags({selectedTags,setSelectedTags}) {
   
-const moodTags = ["happy","sad","boring","curious","energetic","lazy","tired","fresh"];
+  function removeTag(tag){
+    setSelectedTags((prev)=>{
+      return prev.filter((item)=>(item!==tag))
+    })
+  }
 
-const MoodLogger = React.memo(
-  function MoodLogger({append}){
-    
-    // console.log("MoodLogger is Rendered");
+  return (
+    <div className="selected-tags-container">
 
-    const characterLimit = 21;
+      {selectedTags.map((tag) => (
+        <button 
+          key={tag} 
+          type="button" 
+          className="tag-pill"
+          onClick={() => removeTag(tag)}
+        >
+          <span>{tag}</span>
+          <span className="tag-remove-icon">&times;</span>
+        </button>
+      ))}
+    </div>
+  );
+}
 
-    const [typed, setTyped] = useState("");
-    const [charCount, setCount] = useState(0);
+// I might need this dropdowwn in other places as well. So I am keeping it globally.
+// tag is the input in the input box
+// setTag is to set the input field when the user clicks on an item in the dropdown
 
-    const [tag, setTag] = useState("");
-    const [charTCount, setTCount] = useState(0);
-
-    const [selectedTags,setSelectedTags] = useState([]);
-
-    const [showDropdown,setShowDropdown] = useState(false);
-    const [newTagDetected,setNewTagDetected] = useState(false);
-    
-    function changeTheField(e,setText,setCnt){
-      const inputStr = e.target.value;
-      const inputLen = inputStr.length;
-      if(inputLen <= characterLimit) {
-        setText(inputStr)
-        setCnt(inputStr.length);
-      }
-    }
-
-    function submit(e){
-      e.preventDefault();
-      if(typed.length===0) return;
-      // console.log(`Your Response is Logged: ${typed}`);
-      // console.log("Tags selected:",selectedTags);
-      const now = new Date();
-      const date = now.toLocaleDateString();
-      const time = now.toLocaleTimeString();
-      append(date,now.getTime(),time,selectedTags,typed);
-      setTyped("");
-      setSelectedTags([]);
-    }
-
-    function resetText(){
-      setTyped("");
-    }
-    
-    function addTag(){
-      if(tag.length===0) return; 
-      if(newTagDetected) moodTags.push(tag);
-      setNewTagDetected(false);
-      setSelectedTags((prev)=>{
-        const updated = [...prev];
-        updated.push(tag);
-        setTag("");
-        return updated;
-      })
-    }
-
-    function removeTag(tag){
-      setSelectedTags((prev)=>{
-        return prev.filter((item)=>(item!==tag))
-      })
-    }
-
-    function Dropdown({filter}){
-      // console.log("Displaying the dropwdown",moodTags);
-      let filtered;
-      if(tag.length!==0) { filtered = moodTags.filter((item)=>(item.includes(filter)));}
-      else {filtered = moodTags;}
-      if(filtered.length===0) setNewTagDetected(true);
-        return(
-          <div className="dropdown-container">
-            <ul className="dropdown-list">
-              {filtered.map((item) => (
-                <li key={item} className="dropdown-item">
-                  <button type="button" onMouseDown={() => setTag(item)}>
-                    {item}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-      )
-    }
-
-    function DisplaySelectedTags() {
-      return (
-        <div className="selected-tags-container">
-
-          {selectedTags.map((tag) => (
-            <button 
-              key={tag} 
-              type="button" 
-              className="tag-pill"
-              onClick={() => removeTag(tag)}
-            >
-              <span>{tag}</span>
-              <span className="tag-remove-icon">&times;</span>
+function Dropdown({tag,setTag}){
+  // console.log("Displaying the dropwdown",moodTags);
+  const filter = tag;
+  let filtered;
+  if(filter.length!==0) { filtered = moodTags.filter((item)=>(item.includes(filter)));}
+  else {filtered = moodTags;}
+  
+  return(
+    <div className="dropdown-container">
+      <ul className="dropdown-list">
+        {filtered.map((item) => (
+          <li key={item} className="dropdown-item">
+            <button type="button" onMouseDown={() => setTag(item)}>
+              {item}
             </button>
-          ))}
-        </div>
-      );
-    }
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
 
+// tag is the input typed, and setTag controls it. 
+// changeTheField is the function for onChange for the input
+// setShowDropdown is to show/hide the dropdown
+// addTag is the button action associated with this input field.
 
-    return(
-  <div className="mood-logger-card">
-    <h2>Mood Logger</h2>
-    
-    <form className="mood-form" onSubmit={submit}>
+function DropdownInput({tag,setTag,changeTheField,setShowDropdown,setSelectedTags}){
+  
+  function addTag(){
+    if(tag.length===0) return; 
+    if(!(moodTags.find((item)=>(item===tag)))) moodTags.push(tag);
+    setSelectedTags((prev)=>{
+      return [...prev,tag];
+    })
+    setTag("");   
+  }
+
+  return (
+    <div className="tag-input-container">
+      <input id='tag-input' className='input-text-box' value={tag} 
+      onChange={(e)=>{changeTheField(e,setTag)}} 
+      onFocus={()=>{setShowDropdown(true)}}
+      onBlur={()=>{setShowDropdown(false)}}/> 
+      <span className='charCount'>{tag.length}/21</span>
+      <button type="button" className='btn btn-primary'
+      onClick={addTag}>
+        Add</button>
+    </div>
+  );
+}
+
+// FullDropdown is the parent that manages the dropdown state 
+// Since this state is controlled/used by two components , i will treat these two as child component for the parent.
+// the shared states are: tag,  showDropdown
+function FullDropdown({setSelectedTags}){
+  
+  const [showDropdown,setShowDropdown] = useState(false);
+  const [tag, setTag] = useState("");
+  
+  return(
+    <>
+      <DropdownInput {...{tag,setTag,changeTheField,setShowDropdown,setSelectedTags}}/>
+      {showDropdown && <Dropdown {...{tag,setTag}}/>}   
+    </>
+  )
+}
+
+// I feel most of the state ownership is with this MoodForm. 
+// Ideally it doesnt have to accept a lot of parameters.
+function MoodForm({append,preTyped,preSelectedTags}){
+
+  const [typed, setTyped] = useState( preTyped ? preTyped : "");
+  const [selectedTags,setSelectedTags] = useState( preSelectedTags ? preSelectedTags : []);
+
+  function submit(e){
+    e.preventDefault();
+    if(typed.length===0) return;
+    // console.log(`Your Response is Logged: ${typed}`);
+    // console.log("Tags selected:",selectedTags);
+    const now = new Date();
+    const date = now.toLocaleDateString();
+    const time = now.toLocaleTimeString();
+    const id = now.getTime();
+    append({date,id,time,selectedTags,typed});
+    setTyped("");
+    setSelectedTags([]);
+  }
+
+  return (
+    <form className="mood-form" autoComplete="off"
+      onSubmit={(e)=>{submit(e)}}>
       {/* Tag Section */}
       <div className="tag-selector">
         <label forhtml='tag-input'>Select the tags that describe your mood: </label>
-        <div className="tag-input-container">
-          <input id='tag-input' className='input-text-box' value={tag} 
-          onChange={(e)=>{changeTheField(e,setTag,setTCount)}} 
-          onFocus={()=>{setShowDropdown(true)}}
-          onBlur={()=>{setShowDropdown(false)}}/> 
-          <span className='charCount'>{tag.length}/21</span>
-          <button type="button" className='btn btn-primary'
-          onClick={addTag}>
-            Add</button>
-        </div>
-        {showDropdown && <Dropdown filter={tag}/>}
+        <FullDropdown setSelectedTags={setSelectedTags} />
         {selectedTags.length > 0 ? (
           <>
             <p>Tags Selected</p>
-            <DisplaySelectedTags/>
+            <DisplaySelectedTags selectedTags={selectedTags} setSelectedTags={setSelectedTags}/>
           </>
-        ) : (
-          <p>No tags selected</p>
-        )}
+        ) : (<p>No tags selected</p>)
+        }
         
       </div>
 
@@ -163,7 +168,7 @@ const MoodLogger = React.memo(
         <label htmlFor="strmood">What's contributing to your mood right now?</label>
         <div className='inputWithCharCount'>
           <input id="strmood" className='input-text-box' type="text" placeholder="Morning Run,Didn't Sleep well..."
-            value={typed} onChange={(e) =>changeTheField(e,setTyped,setCount)} />
+            value={typed} onChange={(e) =>changeTheField(e,setTyped)} />
           <span className='charCount'>{typed.length}/21</span>
         </div>
       </div>
@@ -178,10 +183,31 @@ const MoodLogger = React.memo(
         </button>
       </div>
     </form>
-  </div>
+  )
+}
+
+// in general any text input would need this function for onChange, so keeping this function globally
+function changeTheField(e,setText){
+  const inputStr = e.target.value;
+  const inputLen = inputStr.length;
+  if(inputLen <= characterLimit) setText(inputStr);
+}
+
+// in general any input can have a clear button, so keeping this function globally
+function resetText(setTyped){
+  setTyped("");
+}
+
+// after refactor a giant function became this much small !
+const MoodLogger = React.memo(
+  function MoodLogger({append}){
+    return(
+      <div className="mood-logger-card">
+        <h2>Mood Logger</h2>
+        <MoodForm append={append}/>
+      </div>
     );
   }
-
 );
 
 function MoodHistory({ moodHis, deleteEntry , editEntry}) {
@@ -230,173 +256,114 @@ function MoodHistory({ moodHis, deleteEntry , editEntry}) {
     );
 }
 
+
+function LatestMood({moodHis}){
+    
+  const now = new Date();
+  const date = now.toLocaleDateString();
+
+  if (Object.keys(moodHis).length === 0 || !moodHis[date] || moodHis[date].length === 0) {
+    return (
+      <div className='latest-mood-container empty'>
+        <h3>Latest update today</h3>
+        <p className="empty-msg">No mood logged yet today!</p>
+        <span className="sub-text">Log your mood above to track how you feel.</span>
+      </div>
+    );
+  }
+
+  const {time,tags,moodState} = moodHis[date].at(-1);
+
+  return (
+    <div className="latest-mood-container">
+      <h3 className="latest-title">Latest Mood Today</h3>
+      <p className="latest-state">"{moodState}"</p>
+      <DisplayTags tags={tags} max_width={"280px"}/>
+      <span className="latest-time">Logged at {time}</span>
+    </div>
+  );
+}
+
+function ConfirmDelete({showDelModal,setShowDelModal,deleteAfterConfirmed}){
+
+  if(showDelModal.showNow){
+    return (
+      <div className='Del-Confirm-Modal'>
+        <p>Do you want to delete the entry?</p>
+        <p>This action cannot be undone!</p>
+        <div className='del-confirm-btn-grp'>
+            <button className='btn-action cancel-btn' onClick={()=>(setShowDelModal({showNow:false,date:"",id:""}))}>Cancel</button>
+            <button className='btn-action confirm-btn' onClick={()=>deleteAfterConfirmed(showDelModal.date,showDelModal.id)}>Confirm</button>
+        </div>
+      </div>
+    );
+  }
+}
+
 function ListManager(){
-  // this will change when we integrate with a storage/DB.
-  // instead of assigning empty list, we will fetch the previous data and assign it
-  // moodHis is an object containing date as a key and array of objects as value. value: [{time,tags,moodState},{},....]
+  
+  // moodHis is an object containing date as a key and array of objects as value. value: [{id,time,tags,moodState},{},....]
   let [moodHis,setMoodHis] = useState({});
 
-  // Below code for append was to ensure that the reference of the append remains the same
-    // To create one such , we need a deeper understanding of how closures work for the object where the function stores a reference of object in the first render.
-        // i.e , moodHis is always pointing to the initial moodHis created unless we change it manually by `moodHis = updated`
-        // Ended  up updating two moodHis (one that the function remembers and another is the actual moodHis of the current render)
+// ------------------ append
 
-  // const append = useCallback((date,time,tags,moodState) => {
-  //   const updated = {...moodHis};
-  //   console.log("before update",moodHis,updated);
-  //   if(!updated[date]){
-  //     updated[date] = [];
-  //   }
-  //   updated[date].push({time,tags,moodState});
-  //   // check if this is correct based on my intention
-  //   console.log("updated the emtry",updated);
-  //   console.log("Are you both the same: ",updated===moodHis);
-  //   setMoodHis(updated);
-  //   moodHis = updated; // this is to update the moodHis that the function remembers. 
-  //   console.log("moodHis after update ",moodHis);
-  //   // setMoodHis will update the state of the moodHis that is available to parent ...
-  // }, []);
-
-
-  // below code is the basic version of the append
-
-  // function append(date,time,tags,moodState){
-  //   const updated = {...moodHis}; // without spread, the updated and moodHis will share the same address.
-  //   console.log("before update",moodHis,updated);
-  //   if(!updated[date]){
-  //     updated[date] = [];
-  //   }
-  //   updated[date].push({time,tags,moodState});
-  //   // check if this is correct based on my intention
-  //   console.log("updated the emtry",updated);
-  //   console.log("Are you both the same: ",updated===moodHis);
-  //   setMoodHis(updated);
-    
-  // }
-
-  // below code of append doesnt depend on the moodHis that the function remembers from the initial render. 
-    // instead we are going to use the setterFunction features
-  
-  const append = useCallback((date,id,time,tags,moodState) => {
+  const append = useCallback(({date,id,time,tags,typed:moodState}) => {
     setMoodHis((prev) => {
-      const updated = {...prev};
-      // problem wasnt with the if part.
-      // so create an else part and work 
-      if(!updated[date]){
-        updated[date] = [];
-      }
-      else{
-        // give same spread operation treatment to ensure true copy
-        updated[date] = [...prev[date]];
-      }
+      const updated = {...prev}; // without spread, the updated and prev will share the same address.
+      
+      if(!updated[date]) updated[date] = [];
+      else updated[date] = [...prev[date]]; // give same spread operation treatment to ensure true copy
+      
       updated[date].push({id,time,tags,moodState});
       return updated;
     });
   } , []);
 
-  
-  const [showModal,setShowModal] = useState({showNow:false,date:"",id:""});
+// ------------------ delete
+
+  const [showDelModal,setShowDelModal] = useState({showNow:false,date:"",id:""});
 
   function deleteAfterConfirmed(date,idDel){ 
-    // console.log(date,idDel);
-    setShowModal({showNow:false,date:"",id:""});
+    
+    setShowDelModal({showNow:false,date:"",id:""});
+
     const updated = moodHis[date].filter(({id})=>(id!==idDel) )
-    // console.log("updated in del",updated);
-    const {[date]:val,...rest} = moodHis;
+    const {[date]:_,...rest} = moodHis;
     const final = (updated.length===0)?{...rest}:{...rest,[date]:updated};
-    // console.log("After Deletion",final);
     setMoodHis(final);
   }
 
   function deleteEntry(date,id){
-    // console.log(date,id);
-    setShowModal({showNow:true,date,id});
+    setShowDelModal({showNow:true,date,id});
   }
-  
-  function ConfirmDelete(){
-
-    if(showModal.showNow){
-      return (
-        <div className='Del-Confirm-Modal'>
-          <p>Do you want to delete the entry?</p>
-          <p>This action cannot be undone!</p>
-          <div className='del-confirm-btn-grp'>
-              <button className='btn-action cancel-btn' onClick={()=>(setShowModal({showNow:false,date:"",id:""}))}>Cancel</button>
-              <button className='btn-action confirm-btn' onClick={()=>deleteAfterConfirmed(showModal.date,showModal.id)}>Confirm</button>
-          </div>
-        </div>
-      );
-    }
-  }
-
-  function LatestMood(){
-    
-    const now = new Date();
-    const date = now.toLocaleDateString();
-
-    if (Object.keys(moodHis).length === 0 || !moodHis[date] || moodHis[date].length === 0) {
-      return (
-        <div className='latest-mood-container empty'>
-          <h3>Latest update today</h3>
-          <p className="empty-msg">No mood logged yet today!</p>
-          <span className="sub-text">Log your mood above to track how you feel.</span>
-        </div>
-      );
-    }
-
-    const {time,tags,moodState} = moodHis[date].at(-1);
-
-    return (
-      <div className="latest-mood-container">
-        <h3 className="latest-title">Latest Mood Today</h3>
-        <p className="latest-state">"{moodState}"</p>
-        <DisplayTags tags={tags} max_width={"280px"}/>
-        <span className="latest-time">Logged at {time}</span>
-      </div>
-    );
-  }
-
-  const [showEditModal,setShowEditModal] = useState({showNow:false,date:"",id:""});
+// ------------------ edit
+  const [showEditModal,setShowEditModal] = useState({showNow:false,date:"",idx:""});
 
   function editEntry(date,id){
-    setShowEditModal({showNow:true,date,id});
+    const idx = moodHis[date].findIndex((obj)=>(obj.id===id));
+    setShowEditModal({showNow:true,date,idx});
   }
-
-  function editEntryWithChanges(date,id,tags,moodState){
-    setShowEditModal({showNow:false,date:"",id:""});
-    setMoodHis((prev)=>{
-      
-      let updated={},index=0;
-      const final = {...moodHis};
-      
-      moodHis[date].forEach(element => {
-        if(element.id===id){
-          updated = {id:element.id,time:element.time};
-          index++;
-          return;
-        }
-      });
-
-      updated = {...updated,tags,moodState};
-      
-      final[date][index] = updated;
-      setMoodHis(final);
-
-    })
+  
+  function editEntryWithChanges({selectedTags:NewTags,typed:NewMoodState}){
+    const {idx,date} = showEditModal;
+    const final = {...moodHis};
+    const updated = {...moodHis[date][idx],tags:NewTags,moodState:NewMoodState};
+    final[date][idx] = updated;
+    setMoodHis(final);
+    setShowEditModal({showNow:false,date:"",idx:""});
   }
 
   function EditEntryModal(){
-    
+    const {idx,date} = showEditModal;
+    const {time,moodState,...tags} = moodHis[date][idx];
+    console.log("are both the tags the same? ",tags===moodHis[date][idx].tags);
+
     return(
       <div className="edit-modal">
-        <div className="edit-model-previous">
-          
-        </div>
-        <div className="edit-model-next">
-
-        </div>
+        <h2>Edit the entry</h2>
+        <MoodForm append={editEntryWithChanges}/>
       </div>
-    )
+    );
   }
 
   // console.log("re rendering the listmanager and the children");
@@ -406,8 +373,9 @@ function ListManager(){
       <div className="mood-history-container">
         <MoodHistory moodHis={moodHis} deleteEntry={deleteEntry} editEntry={editEntry} />
       </div>
-      <LatestMood/>
-      <ConfirmDelete/>
+      <LatestMood moodHis={moodHis}/>
+      <ConfirmDelete {...{showDelModal,setShowDelModal,deleteAfterConfirmed}}/>
+      {/* {showEditModal.showNow && <EditEntryModal/>} */}
     </main>
   )
 
