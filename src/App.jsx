@@ -17,7 +17,6 @@ const characterLimit = 21;
 
 // helper resusable components
 function DisplayTags({tags,max_width}){
-  console.log("inside display tags",tags)
   return(<div className="latest-mood-tag-container" style={{maxWidth:max_width}}>
       {tags.map((tag)=>(
         <span key={tag} className='latest-mood-tag'>{tag}</span>
@@ -58,7 +57,6 @@ function DisplaySelectedTags({selectedTags,setSelectedTags}) {
 // setTag is to set the input field when the user clicks on an item in the dropdown
 
 function Dropdown({tag,setTag}){
-  // console.log("Displaying the dropwdown",moodTags);
   const filter = tag;
   let filtered;
   if(filter.length!==0) { filtered = moodTags.filter((item)=>(item.includes(filter)));}
@@ -136,8 +134,6 @@ function MoodForm({makeChange,preTyped="",preSelectedTags=[],firstLabel,secondLa
   function submit(e){
     e.preventDefault();
     if(typed.length===0) return;
-    // console.log(`Your Response is Logged: ${typed}`);
-    // console.log("Tags selected:",selectedTags);
     const now = new Date();
     const date = now.toLocaleDateString();
     const time = now.toLocaleTimeString();
@@ -148,7 +144,6 @@ function MoodForm({makeChange,preTyped="",preSelectedTags=[],firstLabel,secondLa
     setSelectedTags([]);
   }
 
-  // console.log(selectedTags,selectedTags.length);
   return (
     <div className="mood-form-wrapper">
       {children && <div className="mood-form-close-area">{children}</div>}
@@ -219,7 +214,6 @@ const MoodLogger = React.memo(
 );
 
 function MoodHistory({ moodHis, deleteEntry , editEntry}) {
-  // console.log("Displaying the entry",moodHis);
   if (Object.keys(moodHis).length === 0) {
     return (
         <p>No entries logged yet!</p>
