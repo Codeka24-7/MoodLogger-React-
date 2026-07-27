@@ -217,7 +217,7 @@ function MoodHistory({ moodHis, deleteEntry , editEntry}) {
         <p>No entries logged yet!</p>
     );
   }
-
+  
   return (
       <>
         <h3 className="mood-history-title">Mood History</h3>
@@ -307,7 +307,7 @@ function ListManager(){
 
 // ------------------ append
 
-  const append = useCallback(({date,id,time,tags,typed:moodState}) => {
+  const append = useCallback(({date,id,time,selectedTags:tags,typed:moodState}) => {
     setMoodHis((prev) => {
       const updated = {...prev}; // without spread, the updated and prev will share the same address.
       
